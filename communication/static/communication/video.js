@@ -59,7 +59,7 @@ function requestTurn(turnURL) {
 }
 
 // SOCKET
-const socket = new WebSocket('ws://'+window.location.host+'/ws/video/'+room+'/');
+const socket = new WebSocket('wss://'+window.location.host+'/ws/video/'+room+'/');
 
 socket.onmessage = async (e) => {
   console.log("RECIEVED FROM SERVER : ", e);
