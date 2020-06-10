@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+  <title>Realtime communication with WebRTC</title>
+  <style media="screen">
+    video {
+      max-width: 50%;
+      /* width: 320px; */
+    }
+  </style>
+</head>
+<body>
+  <h1>Realtime communication with WebRTC</h1>
+  <div id="videos">
+    <video id="localVideo" autoplay muted></video>
+    <video id="remoteVideo" autoplay></video>
+  </div>
+  <!-- <button type="button" id="call_btn" onclick="ready()">CALL</button> -->
+  {{ room|json_script:"room" }}
+  <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+  <script src="{% static 'communication/video.js' %}"></script>
+</body>
+</html>
