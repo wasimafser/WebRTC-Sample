@@ -191,3 +191,17 @@ function toggle_audio(){
   console.log("Audio : ", audioTracks[0].enabled);
   toggle_icon('mute-audio');
 }
+
+function toggle_video(){
+  var videoTracks = localStream.getVideoTracks();
+  if (videoTracks.length === 0) {
+    return;
+  }
+
+  videoTracks.forEach((track, i) => {
+    track.enabled = !track.enabled;
+  });
+
+  console.log("Video : ", videoTracks[0].enabled);
+  toggle_icon('mute-video');
+}
