@@ -21,9 +21,9 @@ var streamConfig = {
 };
 
 if (location.hostname !== 'localhost') {
-  requestTurn(
-    'https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913'
-  );
+  // requestTurn(
+  //   'https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913'
+  // );
 }
 
 var turnReady = false;
@@ -59,7 +59,7 @@ function requestTurn(turnURL) {
 }
 
 // SOCKET
-const socket = new WebSocket('wss://'+window.location.host+'/ws/video/'+room+'/');
+const socket = new WebSocket('ws://'+window.location.host+'/ws/video/'+room+'/');
 
 socket.onmessage = async (e) => {
   console.log("RECIEVED FROM SERVER : ", e);
@@ -167,3 +167,27 @@ async function onNegotiationNeeded(event) {
 //
 //   )
 // }
+
+// OTHER IN-VIDEO FUNCTIONS
+var toggle_icon = function(icon_id){
+  mute_audio_icon = document.getElementById(icon_id);
+  if (mute_audio_icon.classList.contains('on')) {
+    mute_audio_icon.classList.remove('on');
+  }else {
+    mute_audio_icon.classList.add('on');
+  }
+}
+
+function toggle_audio(){
+  var audioTracks = localStream.getAudioTracks();
+  if (audioTracks.length === 0) {
+    return;
+  }
+
+  audioTracks.forEach((track, i) => {
+    track.enabled = !track.enabled;
+  });
+
+  console.log("Audio : ", audioTracks[0].enabled);
+  toggle_icon('mute-audio');
+}
