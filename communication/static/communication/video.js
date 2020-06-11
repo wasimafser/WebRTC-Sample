@@ -1,4 +1,4 @@
-const room = 'test'
+const room = JSON.parse(document.getElementById('room').textContent);
 
 const localVideo = document.getElementById('localVideo')
 const remoteVideo = document.getElementById('remoteVideo')
