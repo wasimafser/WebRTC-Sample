@@ -74,6 +74,8 @@ socket.onmessage = async (e) => {
     // console.log("JOINED");
     createPeerConnection();
     // sendOffer();
+  } else if (data.message === 'rejected') {
+    alert("NO ROOM ALLOCATED");
   } else {
     if (data.message.type){
       var type = data.message.type;

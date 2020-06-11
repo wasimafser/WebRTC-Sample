@@ -8,14 +8,14 @@ from .models import Room
 # we can call from our async consumers, that handles Django DBs correctly.
 # For more, see http://channels.readthedocs.io/en/latest/topics/databases.html
 @database_sync_to_async
-def get_room_or_error(room_id, user):
+def get_room_or_none(room):
     """
     Tries to fetch a room
     """
-    # Find the room they requested (by ID)
+    # Find the room they requested (by code)
     try:
-        room = Room.objects.get(pk=room_id)
+        room = Room.objects.get(code=room)
     except Room.DoesNotExist:
-        raise ClientError("ROOM_INVALID")
+        room = None
 
     return room
