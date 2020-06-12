@@ -12,7 +12,6 @@ class VideoConsumer(AsyncJsonWebsocketConsumer):
         self.room_group_name = 'video_%s' % self.room_name
 
         self.is_room = await get_room_or_none(self.room_name)
-        print(self.is_room)
 
         if not self.is_room:
             return

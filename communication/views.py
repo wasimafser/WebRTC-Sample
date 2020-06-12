@@ -20,3 +20,17 @@ class VideoView(View):
             'rooms': Room.objects.all()
         }
         return render(request, self.template_name, context=context)
+
+
+class ClientOneView(View):
+    template_name = 'communication/client_1.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)
+
+
+class ClientTwoView(View):
+    template_name = 'communication/client_2.html'
+
+    def get(self, request, *args, **kwargs):
+        return render(request, self.template_name)

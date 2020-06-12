@@ -20,12 +20,22 @@ class RoomAPI(APIView):
                 return code
 
     def get(self, request, format=None):
-        serializer = RoomSerializer(Room.objects.all(), many=True)
+        client_id = request.query_params.get('client_id', None)
+        if client_id:
+            try:
+                serializer = RoomSerializer(Room.objects.get(client_id=client_id))
+            except Room.DoesNotExist:
+                return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            serializer = RoomSerializer(Room.objects.all(), many=True)
         return Response(serializer.data)
 
     def post(self, request, format=None):
         ''' Specifically used to create a new ROOM '''
+        _mutable = request.data._mutable
+        request.data._mutable = True
         request.data['code'] = self.generate_random_code()
+        request.data._mutable = _mutable
         serializer = RoomSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
