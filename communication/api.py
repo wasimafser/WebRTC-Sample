@@ -41,3 +41,35 @@ class RoomAPI(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class VideoAPI(APIView):
+    def post(self, request, format=None):
+        baseDir = settings.BASE_DIR
+        path = baseDir + "/media/recordings/test/"
+
+        try:
+            # recordingLength = float(request.META['HTTP_LENGTH'])
+
+            path = baseDir + "/media/recordings/test/"
+            filename = "test"
+
+            if not os.path.exists(path):
+                os.makedirs(path)
+
+            extension = ".ogg" if promptGroup.type == "audio" else ".webm"
+            with open(path + filename + extension, 'wb+') as destination:
+                for chunk in request.FILES['blob'].chunks():
+                    destination.write(chunk)
+
+            # AudioSegment.from_file(path+filename+".ogg").export(path+filename+".mp3", format="mp3").close()
+            # os.remove(path+filename+".ogg")
+
+            # Recording.objects.create(path=path, name=filename + extension, created=timezone.now(),
+            #                                      user_id=userID,
+            #                                      length=recordingLength)
+        except:
+            logger.critical("Error while trying to upload! Please check previous Log Messages")
+            raise SuspiciousFileOperation
+
+        return Response(path, status=status.HTTP_201_CREATED)

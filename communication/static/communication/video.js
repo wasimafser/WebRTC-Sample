@@ -20,6 +20,8 @@ var streamConfig = {
   video: true
 };
 
+var recorder;
+
 if (location.hostname !== 'localhost') {
   // requestTurn(
   //   'https://computeengineondemand.appspot.com/turn?username=41784574&key=4080218913'
@@ -62,6 +64,7 @@ function requestTurn(turnURL) {
 var ws = 'ws://';
 if(window.location.protocol=="https:"){ ws = 'wss://'; }
 const socket = new WebSocket(ws+window.location.host+'/ws/video/'+room+'/');
+socket.binaryType = 'arraybuffer';
 
 socket.onmessage = async (e) => {
   console.log("RECIEVED FROM SERVER : ", e);
@@ -119,9 +122,41 @@ navigator.mediaDevices.getUserMedia(streamConfig)
     localStream = stream;
     localVideo.srcObject = localStream;
 
+    // Recording
+    // var record_options = {mimeType: 'video/webm'}
+    // recorder = new MediaRecorder(stream, record_options);
+    // recorder.ondataavailable = sendRecordingToServer;
+    // recorder.start();
+    recorder = RecordRTC(stream, {
+      type: 'video',
+      mimeType: 'video/webm',
+      recorderType: MediaStreamRecorder,
+      ondataavailable: sendRecordingToServer,
+
+    });
+    recorder.startRecording();
+
     // JOIN THE ROOM
     send_message('join');
   });
+
+// Send Recoding to server
+
+async function sendRecordingToServer(blob) {
+  // var reader = new FileReader();
+  // reader.readAsArrayBuffer(event.data);
+  // reader.onloadend = async function (event) {
+  //   console.log(reader.result);
+  //   await socket.send(JSON.stringify({
+  //     'type': 'video',
+  //     'message': reader.result
+  //   }));
+  // }
+  await socket.send(JSON.stringify({
+    'type': 'video',
+    'message': blob
+  }));
+}
 
 // CONNECTION FUNCTIONS
 
@@ -149,6 +184,7 @@ function onIceCandidate(event) {
 function gotRemoteStream(event) {
   console.log("RemoteSteam : ", event);
   remoteVideo.srcObject = event.streams[0];
+  recorder.getInternalRecorder().addStreams([event.streams[0]]);
 }
 
 async function onNegotiationNeeded(event) {
@@ -208,4 +244,61 @@ function toggle_video(){
 
   console.log("Video : ", videoTracks[0].enabled);
   toggle_icon('mute-video');
+}
+
+function toggle_recording(){
+  if (recorder !== null) {
+    // recorder.stop();
+    recorder.stopRecording(function(){
+      let blob = recorder.getBlob();
+      upload(blob);
+      invokeSaveAsDialog(blob);
+      recorder = null;
+    });
+    // recorder = null;
+  }
+  else {
+    // var record_options = {mimeType: 'video/webm'}
+    // recorder = new MediaRecorder(localStream, record_options);
+    // recorder.ondataavailable = sendRecordingToServer;
+    // recorder.start();
+    recorder = RecordRTC(stream, {
+      type: 'video',
+      mimeType: 'video/webm',
+      recorderType: MediaStreamRecorder,
+      ondataavailable: sendRecordingToServer,
+
+    });
+    recorder.startRecording();
+  }
+
+  toggle_icon('recording');
+}
+
+function upload(blob) {
+    var formData = new FormData();
+    formData.append("blob", blob);
+    // var xhr = new XMLHttpRequest();
+    // xhr.open('POST', "http://127.0.0.1:8000/communication/api/recording/", true);
+    // xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+    // // xhr.setRequestHeader("PromptID", String(promptID).split("_")[0]);
+    // // xhr.setRequestHeader("length", recordingTime);
+    //
+    // xhr.onreadystatechange = function () {
+    //     if (xhr.readyState == 4 && xhr.status == 200) {
+    //             writeMessages($.parseJSON(xhr.response));
+    //     } else if (xhr.readyState == 4 && xhr.status == 400 || xhr.readyState == 4 && xhr.status == 500) {
+    //         alert("Error while Uploading - The admins have been notified. Please try again later")
+    //     }
+    // };
+    // xhr.send(formData);
+    $.ajax({
+        type: 'POST',
+        url: "{% url 'recording_api' %}",
+        data: formData,
+        processData: false,
+        contentType: false
+    }).done(function(data) {
+           console.log(data);
+    });
 }

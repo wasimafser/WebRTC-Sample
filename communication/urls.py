@@ -9,4 +9,5 @@ urlpatterns = [
     path('client_1/', views.ClientOneView.as_view(), name='client_1'),
     path('client_2/', views.ClientTwoView.as_view(), name='client_2'),
     path('api/room/', api.RoomAPI.as_view(), name='room_api'),
+    path('api/recording/', api.VideoAPI.as_view(), name='recording_api'),
 ]
